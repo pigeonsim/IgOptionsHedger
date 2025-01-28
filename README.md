@@ -23,17 +23,17 @@ A Streamlit application designed to interface with the IG Trading API for option
 1. Clone this repository
 2. Install dependencies:
 ```bash
-pip install -r uv.lock
+pip install -r requirements.txt
 ```
 
 ## Configuration
 
-1. Create a `.streamlit/config.toml` file with the following content:
+1. Ensure there is a `.streamlit/config.toml` file with the following content:
 ```toml
 [server]
 headless = true
 address = "0.0.0.0"
-port = 5000
+port = 8501
 
 [theme]
 primaryColor = "#FF4B4B"

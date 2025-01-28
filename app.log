@@ -8,3 +8,11 @@
 2025-01-28 15:36:13,168 - ig_api - INFO - Successfully fetched market details
 2025-01-28 15:36:13,396 - ig_api - INFO - Successfully fetched market details
 2025-01-28 15:36:13,397 - root - ERROR - Error processing option position: No epic mapping found for underlying DE30
+2025-01-28 18:55:37,674 - ig_api - INFO - Successfully authenticated with IG API
+2025-01-28 18:55:37,851 - ig_api - INFO - Successfully fetched positions
+2025-01-28 18:55:37,935 - ig_api - INFO - Successfully fetched market details
+2025-01-28 18:55:38,022 - ig_api - INFO - Successfully fetched market details
+2025-01-28 18:55:38,113 - ig_api - INFO - Successfully fetched market details
+2025-01-28 18:55:38,202 - ig_api - INFO - Successfully fetched market details
+2025-01-28 18:55:38,287 - ig_api - INFO - Successfully fetched market details
+2025-01-28 18:55:38,367 - ig_api - INFO - Successfully fetched market details
