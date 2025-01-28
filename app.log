@@ -1,0 +1,10 @@
+2025-01-28 15:35:50,028 - ig_api - ERROR - Authentication failed with status code: 403
+2025-01-28 15:35:50,029 - ig_api - ERROR - Unexpected error during authentication: Failed to authenticate with IG API
+2025-01-28 15:36:11,749 - ig_api - INFO - Successfully authenticated with IG API
+2025-01-28 15:36:12,244 - ig_api - INFO - Successfully fetched positions
+2025-01-28 15:36:12,465 - ig_api - INFO - Successfully fetched market details
+2025-01-28 15:36:12,680 - ig_api - INFO - Successfully fetched market details
+2025-01-28 15:36:12,883 - ig_api - INFO - Successfully fetched market details
+2025-01-28 15:36:13,168 - ig_api - INFO - Successfully fetched market details
+2025-01-28 15:36:13,396 - ig_api - INFO - Successfully fetched market details
+2025-01-28 15:36:13,397 - root - ERROR - Error processing option position: No epic mapping found for underlying DE30
