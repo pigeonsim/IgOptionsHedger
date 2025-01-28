@@ -23,7 +23,7 @@ A Streamlit application designed to interface with the IG Trading API for option
 1. Clone this repository
 2. Install dependencies:
 ```bash
-pip install -r requirements.txt
+pip install -r uv.lock
 ```
 
 ## Configuration
@@ -63,9 +63,7 @@ streamlit run main.py
 ## Error Handling
 All errors are logged to both console and `app.log` file.
 
-## Development
-
-### Project Structure
+## Project Structure
 
 - `main.py`: Main application entry point and Streamlit interface
 - `ig_api.py`: IG Trading API client implementation
@@ -74,18 +72,6 @@ All errors are logged to both console and `app.log` file.
 - `utils.py`: Utility functions
 - `epic_mapping.py`: Market instrument mappings
 
+## Disclaimer
 
-## Security
-
-- Credentials are never logged or stored
-- API keys are handled securely through environment variables
-- Session management with automatic timeout
-- Secure error handling without exposing sensitive details
-
-## License
-
-This project is proprietary and confidential.
-
-## Support
-
-For any issues or questions, please contact the development team.
+This script should be used with caution when handling sensitive information or financial data;
