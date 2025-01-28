@@ -65,8 +65,8 @@ def main():
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
 
-            if st.checkbox("Save API Key"):
-                st.session_state.api_key = api_key
+            #if st.checkbox("Save API Key"):
+            #    st.session_state.api_key = api_key
 
             if st.button("Login", use_container_width=True):
                 try:
