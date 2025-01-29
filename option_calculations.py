@@ -146,7 +146,7 @@ def _put_delta(s: float, k: float, t: float, v: float, r: float) -> float:
     return 0.0 if delta == -1 and k == s else delta
 
 def get_delta(s: float, k: float, t: float, v: float, r: float, 
-              call_put: Literal["call", "put"]) -> float:
+              call_put: Literal["call", "put"], direction: Literal["BUY", "SELL"]) -> float:
     """
     Calculate the delta of an option.
 
@@ -157,20 +157,26 @@ def get_delta(s: float, k: float, t: float, v: float, r: float,
         v: Volatility as a decimal
         r: Annual risk-free interest rate as a decimal
         call_put: The type of option - "call" or "put"
+        direction: The direction of the trade - "BUY" or "SELL"
 
     Returns:
-        The delta of the option
+        The delta of the option, with sign adjusted for trade direction
 
     Examples:
-        >>> get_delta(100, 100, 1, 0.2, 0.05, "call")  # At-the-money call option
+        >>> get_delta(100, 100, 1, 0.2, 0.05, "call", "BUY")  # Long ATM call
         0.5398...
-        >>> get_delta(100, 100, 1, 0.2, 0.05, "put")   # At-the-money put option
+        >>> get_delta(100, 100, 1, 0.2, 0.05, "put", "BUY")   # Long ATM put
         -0.4602...
+        >>> get_delta(100, 100, 1, 0.2, 0.05, "call", "SELL") # Short ATM call
+        -0.5398...
     """
     if call_put == "call":
-        return _call_delta(s, k, t, v, r)
+        delta = _call_delta(s, k, t, v, r)
     else:  # put
-        return _put_delta(s, k, t, v, r)
+        delta = _put_delta(s, k, t, v, r)
+        
+    # Reverse sign for SELL positions
+    return delta if direction == "BUY" else -delta
 
 def calculate_implied_volatility(
     s: float, k: float, t: float, r: float, 

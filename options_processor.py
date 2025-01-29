@@ -58,7 +58,10 @@ class OptionsProcessor:
         """
         expiry_date = self.parse_expiry_date(expiry_str)
         today = date.today()
+        print(expiry_date)
+        print(today)
         days_to_expiry = (expiry_date - today).days
+        print(days_to_expiry)
         return max(days_to_expiry, 0) / 365.0  # Ensure non-negative
 
     def parse_option_epic(self, epic: str) -> Tuple[float, str]:
@@ -204,6 +207,8 @@ class OptionsProcessor:
             offer = float(position['market']['offer'])
             market_price = (bid + offer) / 2.0
 
+            direction = position['position']['direction']
+
             try:
                 volatility = calculate_implied_volatility(
                     s=current_price,
@@ -223,7 +228,8 @@ class OptionsProcessor:
                               t=time_to_expiry,
                               v=volatility,
                               r=interest_rate,
-                              call_put=option_type)
+                              call_put=option_type,
+                              direction=direction)
 
             # Enrich position data with calculations
             return {
