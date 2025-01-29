@@ -13,7 +13,7 @@ class OptionsProcessor:
 
     def is_option(self, epic: str) -> bool:
         """Check if an instrument is an option based on its epic"""
-        return epic.startswith("OP.")
+        return epic.startswith("OP.") or epic.startswith("DO.")
 
     def get_third_friday(self, year: int, month: int) -> date:
         """Get the third Friday of a given month"""
@@ -63,7 +63,7 @@ class OptionsProcessor:
 
     def parse_option_epic(self, epic: str) -> Tuple[float, str]:
         """
-        Parse strike price and option type from option EPIC code
+        Parse strike price and option type from option EPIC code. NOT APPROPRIATE BECAUSE EPIC FORMAT IS UNPREDICTABLE.
 
         Args:
             epic: The option's EPIC code (e.g. "OP.D.SPX1.6000C.IP")
@@ -96,6 +96,42 @@ class OptionsProcessor:
         except Exception as e:
             raise ValueError(f"Failed to parse option EPIC {epic}: {str(e)}")
 
+    def parse_option_info(self, name: str) -> Tuple[float, str]:
+        """
+        Parse strike price and option type from option name
+
+        Args:
+            name: The option's name (e.g. "US 500 6000 CALL" or "Daily US 500 6058.0 CALL")
+
+        Returns:
+            Tuple containing (strike_price, option_type)
+
+        Raises:
+            ValueError: If name format is invalid
+        """
+        try:
+            # Split the name into parts
+            parts = name.upper().split()
+            
+            if len(parts) < 2:
+                raise ValueError(f"Invalid name format: {name}")
+                
+            # The option type should be the last word
+            option_type = parts[-1].lower()
+            if option_type not in ['call', 'put']:
+                raise ValueError(f"Invalid option type: {option_type}")
+                
+            # Strike price is the number right before the option type
+            try:
+                strike = float(parts[-2].replace(',', ''))
+            except ValueError:
+                raise ValueError(f"Could not parse strike price from: {parts[-2]}")
+                
+            return strike, option_type
+            
+        except Exception as e:
+            raise ValueError(f"Failed to parse option name {name}: {str(e)}")
+        
     def get_underlying_epic(self, market_id: str) -> Optional[str]:
         """
         Find the corresponding epic code for an underlying market ID
@@ -138,7 +174,8 @@ class OptionsProcessor:
             option_details = self.ig_client.get_market_details(option_epic)
 
             # Parse strike price and option type from EPIC
-            strike_price, option_type = self.parse_option_epic(option_epic)
+            option_name = position['market']['instrumentName']
+            strike_price, option_type = self.parse_option_info(option_name)
 
             # Extract underlying market ID and find corresponding epic
             underlying_market_id = option_details['instrument'].get('marketId')
