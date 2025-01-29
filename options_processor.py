@@ -224,6 +224,7 @@ class OptionsProcessor:
                 raise ValueError(
                     f"No underlying market ID found for option {option_epic}")
 
+            #print("underlying_market_id", underlying_market_id)
             underlying_epic = self.get_underlying_epic(underlying_market_id)
             if not underlying_epic:
                 raise ValueError(
@@ -233,11 +234,14 @@ class OptionsProcessor:
             # Get underlying market details
             underlying_details = self.ig_client.get_market_details(
                 underlying_epic)
+            
+            #print("underlying_details")
+            #print(underlying_details)
 
             # Extract required values for delta calculation
             current_price = (float(underlying_details['snapshot']['bid']) + float(underlying_details['snapshot']['offer'])) / 2.0
-            print(strike_price)
-            print(current_price)
+            #print(strike_price)
+            #print(current_price)
             adjusted_strike = self.adjust_fx_strike(strike_price, current_price)
             time_to_expiry = self.calculate_time_to_expiry(
                 position['market']['expiry'])
