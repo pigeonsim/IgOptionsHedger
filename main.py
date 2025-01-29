@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from datetime import datetime
-from ig_api import IGClient
+from ig_api import IGClient, IGAPIError
 from utils import format_positions
 from options_processor import OptionsProcessor
 
@@ -87,7 +87,7 @@ def main():
 
             # Add streaming controls
             st.header("Data Streaming")
-            st.slider("Refresh interval (seconds)", 1.0, 30.0, value=10.0, key="run_every")
+            st.slider("Refresh interval (seconds)", 10.0, 300.0, value=10.0, key="run_every")
 
             # Streaming buttons
             st.button("Start streaming", disabled=st.session_state.stream, on_click=toggle_streaming)
@@ -111,19 +111,23 @@ def main():
                 if positions:
                     # Process positions with options calculations
                     processed_positions = st.session_state.options_processor.process_positions(positions)
-
                     st.subheader("Current Positions")
-                    # Add update timestamp
                     st.caption(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                     formatted_positions = format_positions(processed_positions)
                     st.json(formatted_positions)
                     if st.session_state.stream:
                         logger.info("Positions updated via streaming")
+            except IGAPIError as e:
+                if "Session expired" in str(e) or "needs new login" in str(e):
+                    st.error("Session expired. Please log in again.")
+                    logout()  # This will clear the session and force re-login
+                    st.rerun()
+                else:
+                    st.error(f"Error fetching positions: {str(e)}")
             except Exception as e:
-                st.error(f"Error fetching positions: {str(e)}")
-                # If the error is due to authentication, log out the user
-                if "Not logged in" in str(e):
-                    logout()
+                st.error(f"Error: {str(e)}")
+                logout()
+                st.rerun()
 
         # Call the fragment
         show_positions()

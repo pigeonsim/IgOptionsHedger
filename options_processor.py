@@ -89,7 +89,7 @@ class OptionsProcessor:
 
             # Validate option type
             if option_type not in ['c', 'p']:
-                raise ValueError(f"Invalid option type: {option_type}")
+                raise ValueError(f"Invalid option type (currently supporting only Call and Put): {option_type}")
 
             return float(strike_str), 'call' if option_type == 'c' else 'put'
 
@@ -224,7 +224,13 @@ class OptionsProcessor:
             if self.is_option(epic):
                 processed_position = self.process_option_position(position)
             else:
-                processed_position = position
-            processed_positions.append(processed_position)
+                logging.info(f"{str(epic)} is not a vanilla Call or Put")
+                processed_position = {
+                    **position,
+                    'calculations': {
+                        'error': "Not a vanilla call or put options"
+                    }
+                }
+            processed_positions.append(processed_position)               
 
         return {"positions": processed_positions}
