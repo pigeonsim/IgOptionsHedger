@@ -101,7 +101,12 @@ class OptionsProcessor:
         Parse strike price and option type from option name
 
         Args:
-            name: The option's name (e.g. "US 500 6000 CALL" or "Daily US 500 6058.0 CALL")
+            name: The option's name
+            Examples:
+                - "US 500 6000 CALL"
+                - "Daily US 500 6058.0 CALL" 
+                - "Daily EURUSD 10410 CALL ($1)"
+                - "Weekly Germany 40 (Wed)21500 CALL"
 
         Returns:
             Tuple containing (strike_price, option_type)
@@ -110,28 +115,35 @@ class OptionsProcessor:
             ValueError: If name format is invalid
         """
         try:
-            # Split the name into parts
-            parts = name.upper().split()
-            
-            if len(parts) < 2:
-                raise ValueError(f"Invalid name format: {name}")
+            # Find CALL/PUT in the name
+            for word in ['CALL', 'PUT']:
+                if word in name.upper():
+                    option_type = word.lower()
+                    # Split the name at CALL/PUT
+                    prefix = name.upper().split(word)[0].strip()
+                    break
+            else:
+                raise ValueError(f"Could not find option type (CALL/PUT) in: {name}")
                 
-            # The option type should be the last word
-            option_type = parts[-1].lower()
-            if option_type not in ['call', 'put']:
-                raise ValueError(f"Invalid option type: {option_type}")
+            # Find the last number in the prefix - this will be our strike
+            # This handles cases where the number might be connected to other text like "(Wed)21500"
+            strike_match = ''
+            for char in reversed(prefix):
+                if char.isdigit():
+                    strike_match = char + strike_match
+                elif strike_match:  # Stop once we hit non-digits after finding some digits
+                    break
+                    
+            if not strike_match:
+                raise ValueError(f"Could not find strike price in: {name}")
                 
-            # Strike price is the number right before the option type
-            try:
-                strike = float(parts[-2].replace(',', ''))
-            except ValueError:
-                raise ValueError(f"Could not parse strike price from: {parts[-2]}")
+            strike = float(strike_match)
                 
             return strike, option_type
             
         except Exception as e:
             raise ValueError(f"Failed to parse option name {name}: {str(e)}")
-        
+
     def get_underlying_epic(self, market_id: str) -> Optional[str]:
         """
         Find the corresponding epic code for an underlying market ID
@@ -158,6 +170,35 @@ class OptionsProcessor:
 
         return None
 
+    def adjust_fx_strike(self, raw_strike: float, underlying_price: float) -> float:
+        """
+        Adjust FX option strike based on underlying price decimal convention.
+        If strike already matches underlying decimal magnitude, returns it as-is.
+        
+        Args:
+            raw_strike: The raw strike from parse_option_info() (e.g., 8380, 15400, 0.8380)
+            underlying_price: Current underlying price (e.g., 0.83752, 155.393)
+            
+        Returns:
+            Adjusted strike price with correct decimal placement
+        """
+        # If the strike is already in the same magnitude as underlying, return as-is
+        strike_magnitude = abs(math.floor(math.log10(raw_strike)))
+        underlying_magnitude = abs(math.floor(math.log10(underlying_price)))
+        
+        if abs(strike_magnitude - underlying_magnitude) <= 1:  # Allow for 1 order of magnitude difference
+            return raw_strike
+            
+        # Convert both numbers to strings to count digits before decimal
+        underlying_str = f"{underlying_price:.6f}"
+        underlying_whole_digits = len(underlying_str.split('.')[0])
+        
+        # Calculate how many digits to shift the strike
+        raw_strike_digits = len(str(int(raw_strike)))
+        decimal_shift = raw_strike_digits - underlying_whole_digits
+        
+        return raw_strike / (10 ** decimal_shift)
+    
     def process_option_position(self, position: Dict) -> Dict:
         """
         Process a single option position to calculate its delta
@@ -194,7 +235,10 @@ class OptionsProcessor:
                 underlying_epic)
 
             # Extract required values for delta calculation
-            current_price = float(underlying_details['snapshot']['offer'])
+            current_price = (float(underlying_details['snapshot']['bid']) + float(underlying_details['snapshot']['offer'])) / 2.0
+            print(strike_price)
+            print(current_price)
+            adjusted_strike = self.adjust_fx_strike(strike_price, current_price)
             time_to_expiry = self.calculate_time_to_expiry(
                 position['market']['expiry'])
             interest_rate = 0  # Using 0% as default risk-free rate
@@ -209,7 +253,7 @@ class OptionsProcessor:
             try:
                 volatility = calculate_implied_volatility(
                     s=current_price,
-                    k=strike_price,
+                    k=adjusted_strike,
                     t=time_to_expiry,
                     r=interest_rate,
                     market_price=market_price,
@@ -221,7 +265,7 @@ class OptionsProcessor:
 
             # Calculate delta
             delta = get_delta(s=current_price,
-                              k=strike_price,
+                              k=adjusted_strike,
                               t=time_to_expiry,
                               v=volatility,
                               r=interest_rate,
@@ -233,7 +277,7 @@ class OptionsProcessor:
                 **position, 'calculations': {
                     'delta': delta,
                     'underlying_price': current_price,
-                    'strike_price': strike_price,
+                    'strike_price': adjusted_strike,
                     'time_to_expiry': time_to_expiry,
                     'volatility': volatility,
                     'interest_rate': interest_rate
@@ -261,8 +305,11 @@ class OptionsProcessor:
 
         for position in positions_data['positions']:
             epic = position['market']['epic']
+            processed_position = self.process_option_position(position)
+            '''
             if self.is_option(epic):
                 processed_position = self.process_option_position(position)
+            
             else:
                 logging.info(f"{str(epic)} is not a vanilla Call or Put")
                 processed_position = {
@@ -271,6 +318,7 @@ class OptionsProcessor:
                         'error': "Not a vanilla call or put options"
                     }
                 }
+            '''
             processed_positions.append(processed_position)               
 
         return {"positions": processed_positions}
