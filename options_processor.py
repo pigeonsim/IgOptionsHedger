@@ -58,11 +58,8 @@ class OptionsProcessor:
         """
         expiry_date = self.parse_expiry_date(expiry_str)
         today = date.today()
-        print(expiry_date)
-        print(today)
         days_to_expiry = (expiry_date - today).days
-        print(days_to_expiry)
-        return max(days_to_expiry, 0) / 365.0  # Ensure non-negative
+        return max(max(days_to_expiry, 0) / 365.0, 0.001)  # Ensure non-negative, replace same-day option's 0 value with 0.001 to ensure IV computations later 
 
     def parse_option_epic(self, epic: str) -> Tuple[float, str]:
         """
