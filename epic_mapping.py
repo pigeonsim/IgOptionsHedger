@@ -42,8 +42,8 @@ MARKET_TO_EPIC = {
     # Commodities
     "Oil": "CC.D.CL.UMP.IP",
     "CL": "CC.D.CL.UMP.IP",
-    "Gold": "CS.D.CFDGOLD.CFDGC.IP",
-    "GC": "CS.D.CFDGOLD.CFDGC.IP",
+    "Gold": "CS.D.CFPGOLD.CFP.IP",
+    "GC": "CS.D.CFPGOLD.CFP.IP",
     "Silver": "CS.D.CFDSILVER.CFM.IP",
     "SI": "CS.D.CFDSILVER.CFM.IP",
 
