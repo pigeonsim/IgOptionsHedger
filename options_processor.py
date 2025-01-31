@@ -106,7 +106,8 @@ class OptionsProcessor:
                 - "US 500 6000 CALL"
                 - "Daily US 500 6058.0 CALL" 
                 - "Daily EURUSD 10410 CALL ($1)"
-                - "Weekly Germany 40 (Wed)21500 CALL"
+                - "Weekly Germany 40 (Wed) 21500 CALL"
+                - "Daily Gold (Apr Future) 2835 CALL"
 
         Returns:
             Tuple containing (strike_price, option_type)
