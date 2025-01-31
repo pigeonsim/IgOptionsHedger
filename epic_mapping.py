@@ -1,7 +1,7 @@
 MARKET_TO_EPIC = {
     # US Tech
     "US Tech": "IX.D.NASDAQ.IFS.IP",
-    "US Tech": "IX.D.NASDAQ.IFS.IP",
+    "USTECH": "IX.D.NASDAQ.IFS.IP",
 
     # US 500
     "US 500": "IX.D.SPTRD.IFS.IP",
